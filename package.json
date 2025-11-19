@@ -45,5 +45,27 @@
     "typescript": "^5.9.3",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2"
-  }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "myExtensionSidebar",
+          "title": "My Panel",
+          "icon": "/src/media/show.png"
+        }
+      ]
+    },
+    "views": {
+      "myExtensionSidebar": [
+        {
+          "id": "mySidePanelView",
+          "name": "My Side Panel"
+        }
+      ]
+    }
+  },
+  "activationEvents": [
+    "onView:mySidePanelView"
+  ]
 }

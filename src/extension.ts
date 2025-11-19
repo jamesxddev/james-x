@@ -20,6 +20,70 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+
+	const provider = new MySidePanelProvider(context.extensionUri);
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+		"mySidePanelView",
+		provider
+		)
+	);
+}
+
+class MySidePanelProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType = "mySidePanelView";
+
+  constructor(private readonly _extensionUri: vscode.Uri) {}
+
+  resolveWebviewView(
+    webviewView: vscode.WebviewView
+  ): void | Thenable<void> {
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this._extensionUri]
+    };
+
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+  }
+
+  private _getHtmlForWebview(webview: vscode.Webview): string {
+    return /* html */ `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Side Panel</title>
+        <style>
+          body {
+            font-family: sans-serif;
+            padding: 10px;
+          }
+          button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+        </style>
+      </head>
+      <body>
+        <h3>Hello from My Side Panel</h3>
+        <button id="btn">Click Me</button>
+
+        <script>
+          const vscode = acquireVsCodeApi();
+          document.getElementById('btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'buttonClicked' });
+          });
+        </script>
+      </body>
+      </html>
+    `;
+  }
 }
 
 // This method is called when your extension is deactivated
