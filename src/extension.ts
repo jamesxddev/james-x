@@ -71,7 +71,7 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
         </style>
       </head>
       <body>
-        <h3>Hello from My Side Panel</h3>
+        <h3>Hello from My Side Panel Test changes</h3>
         <button id="btn">Click Me</button>
 
         <script>
