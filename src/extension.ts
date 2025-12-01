@@ -57,27 +57,82 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
         <title>My Side Panel</title>
         <style>
           body {
-            font-family: sans-serif;
-            padding: 10px;
+            font-family: var(--vscode-font-family);
+            padding: 16px;
+          }
+          .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 600px;
           }
           button {
             background-color: #007acc;
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            border-radius: 2px;
             cursor: pointer;
+            font-size: 13px;
+            font-family: var(--vscode-font-family);
+            transition: background-color 0.2s;
+          }
+          button:hover {
+            background-color: #005a9e;
+          }
+          button:active {
+            background-color: #004578;
+          }
+          button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+          }
+          button.empty {
+            visibility: hidden;
           }
         </style>
       </head>
       <body>
-        <h3>Hello from My Side Panel</h3>
-        <button id="btn">Click Me</button>
+        <div class="button-grid">
+          <button id="trim">Trim</button>
+          <button id="distinct">Distinct</button>
+          <button id="removeSpaces">Remove Spaces</button>
+          
+          <button id="lowercase">Lowercase</button>
+          <button id="uppercase">Uppercase</button>
+          <button id="titlecase">Titlecase</button>
+          
+          <button id="sqlString">In SQL string</button>
+          <button id="sqlInt">In SQL Int</button>
+          <button class="empty" disabled></button>
+        </div>
 
         <script>
           const vscode = acquireVsCodeApi();
-          document.getElementById('btn').addEventListener('click', () => {
-            vscode.postMessage({ command: 'buttonClicked' });
+          
+          document.getElementById('trim').addEventListener('click', () => {
+            vscode.postMessage({ command: 'trim' });
+          });
+          document.getElementById('distinct').addEventListener('click', () => {
+            vscode.postMessage({ command: 'distinct' });
+          });
+          document.getElementById('removeSpaces').addEventListener('click', () => {
+            vscode.postMessage({ command: 'removeSpaces' });
+          });
+          document.getElementById('lowercase').addEventListener('click', () => {
+            vscode.postMessage({ command: 'lowercase' });
+          });
+          document.getElementById('uppercase').addEventListener('click', () => {
+            vscode.postMessage({ command: 'uppercase' });
+          });
+          document.getElementById('titlecase').addEventListener('click', () => {
+            vscode.postMessage({ command: 'titlecase' });
+          });
+          document.getElementById('sqlString').addEventListener('click', () => {
+            vscode.postMessage({ command: 'sqlString' });
+          });
+          document.getElementById('sqlInt').addEventListener('click', () => {
+            vscode.postMessage({ command: 'sqlInt' });
           });
         </script>
       </body>
