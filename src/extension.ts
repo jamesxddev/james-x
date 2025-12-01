@@ -100,11 +100,27 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
             font-family: var(--vscode-font-family);
             padding: 16px;
           }
-          .button-grid {
+          details {
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 4px;
+            margin-bottom: 12px;
+            background: var(--vscode-sideBar-background);
+          }
+          summary {
+            cursor: pointer;
+            padding: 8px 12px;
+            font-weight: 600;
+            outline: none;
+          }
+          summary::-webkit-details-marker { display: none; }
+          details[open] summary {
+            border-bottom: 1px solid var(--vscode-panel-border);
+          }
+          .section-buttons {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 600px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 12px;
           }
           button {
             background-color: #007acc;
@@ -133,19 +149,31 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
         </style>
       </head>
       <body>
-        <div class="button-grid">
-          <button id="trim">Trim</button>
-          <button id="distinct">Distinct</button>
-          <button id="removeSpaces">Remove Spaces</button>
-          
-          <button id="lowercase">Lowercase</button>
-          <button id="uppercase">Uppercase</button>
-          <button id="titlecase">Titlecase</button>
-          
-          <button id="sqlString">In SQL string</button>
-          <button id="sqlInt">In SQL Int</button>
-          <button class="empty" disabled></button>
-        </div>
+        <details open>
+          <summary>Text Sanitization</summary>
+          <div class="section-buttons">
+            <button id="trim">Trim</button>
+            <button id="distinct">Distinct</button>
+            <button id="removeInlineSpaces">Remove Inline Spaces</button>
+          </div>
+        </details>
+
+        <details>
+          <summary>Case Conversion</summary>
+          <div class="section-buttons">
+            <button id="lowercase">Lowercase</button>
+            <button id="uppercase">Uppercase</button>
+            <button id="titlecase">Titlecase</button>
+          </div>
+        </details>
+
+        <details>
+          <summary>SQL Formatting</summary>
+          <div class="section-buttons">
+            <button id="sqlString">In SQL String</button>
+            <button id="sqlInt">In SQL Int</button>
+          </div>
+        </details>
 
         <script>
           const vscode = acquireVsCodeApi();
@@ -156,8 +184,8 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
           document.getElementById('distinct').addEventListener('click', () => {
             vscode.postMessage({ command: 'distinct' });
           });
-          document.getElementById('removeSpaces').addEventListener('click', () => {
-            vscode.postMessage({ command: 'removeSpaces' });
+          document.getElementById('removeInlineSpaces').addEventListener('click', () => {
+            vscode.postMessage({ command: 'removeInlineSpaces' });
           });
           document.getElementById('lowercase').addEventListener('click', () => {
             vscode.postMessage({ command: 'lowercase' });
