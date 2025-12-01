@@ -45,6 +45,46 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+    // Listen for messages from the webview (button clicks)
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('No active editor to process.');
+        return;
+      }
+
+      const doc = editor.document;
+      const fullRange = new vscode.Range(
+        doc.positionAt(0),
+        doc.positionAt(doc.getText().length)
+      );
+
+      switch (message?.command) {
+        case 'trim': {
+          const original = doc.getText();
+          // Trim leading/trailing whitespace on every line and the whole document
+          const trimmedByLine = original
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .join('\n')
+            .trim();
+
+          if (trimmedByLine !== original) {
+            await editor.edit((builder) => {
+              builder.replace(fullRange, trimmedByLine);
+            });
+            vscode.window.setStatusBarMessage('Trimmed document whitespace', 2000);
+          } else {
+            vscode.window.setStatusBarMessage('No trimming needed', 2000);
+          }
+          break;
+        }
+        default:
+          // Other commands not implemented yet
+          break;
+      }
+    });
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
