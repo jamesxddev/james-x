@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { TextDecoder } from 'util';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -36,15 +37,15 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
-  resolveWebviewView(
+  async resolveWebviewView(
     webviewView: vscode.WebviewView
-  ): void | Thenable<void> {
+  ): Promise<void> {
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri]
     };
 
-    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    webviewView.webview.html = await this._getHtmlForWebview(webviewView.webview);
 
     // Listen for messages from the webview (button clicks)
     webviewView.webview.onDidReceiveMessage(async (message) => {
@@ -87,150 +88,13 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private _getHtmlForWebview(webview: vscode.Webview): string {
-    return /* html */ `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>My Side Panel</title>
-        <style>
-          body {
-            font-family: var(--vscode-font-family);
-            padding: 16px;
-          }
-          details {
-            border: 1px solid var(--vscode-panel-border);
-            border-radius: 4px;
-            margin-bottom: 12px;
-            background: var(--vscode-sideBar-background);
-          }
-          summary {
-            cursor: pointer;
-            padding: 8px 12px;
-            font-weight: 600;
-            outline: none;
-          }
-          summary::-webkit-details-marker { display: none; }
-          details[open] summary {
-            border-bottom: 1px solid var(--vscode-panel-border);
-          }
-          .section-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 12px;
-          }
-          button {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 2px;
-            cursor: pointer;
-            font-size: 13px; /* base */
-            font-family: var(--vscode-font-family);
-            transition: background-color 0.2s;
-            line-height: 1.2;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            white-space: nowrap; /* single line only */
-            overflow: hidden; /* clip overflow */
-            text-overflow: ellipsis; /* show ellipsis when clipped */
-            max-width: 100%;
-          }
-          /* Auto-scale text for longer labels */
-          button.size-sm { font-size: 12px; }
-          button.size-xs { font-size: 11px; }
-          button.size-2xs { font-size: 10px; }
-          button:hover {
-            background-color: #005a9e;
-          }
-          button:active {
-            background-color: #004578;
-          }
-          button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-          }
-          button.empty {
-            visibility: hidden;
-          }
-        </style>
-      </head>
-      <body>
-        <details open>
-          <summary>Text Sanitization</summary>
-          <div class="section-buttons">
-            <button id="trim">Trim</button>
-            <button id="distinct">Distinct</button>
-            <button id="removeInlineSpaces">Remove Inline Spaces</button>
-          </div>
-        </details>
-
-        <details>
-          <summary>Case Conversion</summary>
-          <div class="section-buttons">
-            <button id="lowercase">Lowercase</button>
-            <button id="uppercase">Uppercase</button>
-            <button id="titlecase">Titlecase</button>
-          </div>
-        </details>
-
-        <details>
-          <summary>SQL Formatting</summary>
-          <div class="section-buttons">
-            <button id="sqlString">In SQL String</button>
-            <button id="sqlInt">In SQL Int</button>
-          </div>
-        </details>
-
-        <script>
-          const vscode = acquireVsCodeApi();
-          // Auto-adjust button text size based on label length
-          const buttons = Array.from(document.querySelectorAll('button'));
-          buttons.forEach(btn => {
-            const len = (btn.textContent || '').trim().length;
-            if (len > 24) {
-              btn.classList.add('size-2xs');
-            } else if (len > 18) {
-              btn.classList.add('size-xs');
-            } else if (len > 12) {
-              btn.classList.add('size-sm');
-            }
-          });
-          
-          document.getElementById('trim').addEventListener('click', () => {
-            vscode.postMessage({ command: 'trim' });
-          });
-          document.getElementById('distinct').addEventListener('click', () => {
-            vscode.postMessage({ command: 'distinct' });
-          });
-          document.getElementById('removeInlineSpaces').addEventListener('click', () => {
-            vscode.postMessage({ command: 'removeInlineSpaces' });
-          });
-          document.getElementById('lowercase').addEventListener('click', () => {
-            vscode.postMessage({ command: 'lowercase' });
-          });
-          document.getElementById('uppercase').addEventListener('click', () => {
-            vscode.postMessage({ command: 'uppercase' });
-          });
-          document.getElementById('titlecase').addEventListener('click', () => {
-            vscode.postMessage({ command: 'titlecase' });
-          });
-          document.getElementById('sqlString').addEventListener('click', () => {
-            vscode.postMessage({ command: 'sqlString' });
-          });
-          document.getElementById('sqlInt').addEventListener('click', () => {
-            vscode.postMessage({ command: 'sqlInt' });
-          });
-        </script>
-      </body>
-      </html>
-    `;
+  private async _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
+    // Load static HTML from src/media/panel.html
+    const htmlUri = vscode.Uri.joinPath(this._extensionUri, 'src', 'media', 'panel.html');
+    const raw = await vscode.workspace.fs.readFile(htmlUri);
+    const decoder = new TextDecoder('utf-8');
+    const html = decoder.decode(raw);
+    return html;
   }
 }
 
