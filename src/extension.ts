@@ -81,6 +81,28 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
           }
           break;
         }
+        case 'distinct': {
+          const original = doc.getText();
+          const lines = original.split(/\r?\n/);
+          const seen = new Set<string>();
+          const distinctLines: string[] = [];
+          for (const line of lines) {
+            if (!seen.has(line)) {
+              seen.add(line);
+              distinctLines.push(line);
+            }
+          }
+          const result = distinctLines.join('\n');
+          if (result !== original) {
+            await editor.edit((builder) => {
+              builder.replace(fullRange, result);
+            });
+            vscode.window.setStatusBarMessage('Removed duplicate lines in document', 2000);
+          } else {
+            vscode.window.setStatusBarMessage('No duplicates found', 2000);
+          }
+          break;
+        }
         default:
           // Other commands not implemented yet
           break;
