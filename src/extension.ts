@@ -129,10 +129,23 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
             padding: 10px 16px;
             border-radius: 2px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 13px; /* base */
             font-family: var(--vscode-font-family);
             transition: background-color 0.2s;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap; /* single line only */
+            overflow: hidden; /* clip overflow */
+            text-overflow: ellipsis; /* show ellipsis when clipped */
+            max-width: 100%;
           }
+          /* Auto-scale text for longer labels */
+          button.size-sm { font-size: 12px; }
+          button.size-xs { font-size: 11px; }
+          button.size-2xs { font-size: 10px; }
           button:hover {
             background-color: #005a9e;
           }
@@ -177,6 +190,18 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
 
         <script>
           const vscode = acquireVsCodeApi();
+          // Auto-adjust button text size based on label length
+          const buttons = Array.from(document.querySelectorAll('button'));
+          buttons.forEach(btn => {
+            const len = (btn.textContent || '').trim().length;
+            if (len > 24) {
+              btn.classList.add('size-2xs');
+            } else if (len > 18) {
+              btn.classList.add('size-xs');
+            } else if (len > 12) {
+              btn.classList.add('size-sm');
+            }
+          });
           
           document.getElementById('trim').addEventListener('click', () => {
             vscode.postMessage({ command: 'trim' });
