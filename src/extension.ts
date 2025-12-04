@@ -81,6 +81,30 @@ class MySidePanelProvider implements vscode.WebviewViewProvider {
           }
           break;
         }
+        case 'removeInlineSpaces':
+        case 'removeLineBreaks': {
+          const original = doc.getText();
+          // Collapse multiple consecutive line breaks (including whitespace-only lines)
+          // into a single newline to retain grouping, and remove blank/empty lines.
+          // This preserves one line break between content blocks.
+          const collapsed = original
+            // Replace 2+ consecutive newlines (with optional spaces/tabs) with a single newline
+            .replace(/([ \t]*\r?\n){2,}/g, '\n')
+            // Remove lines that are purely whitespace
+            .split(/\r?\n/)
+            .filter(line => line.trim().length > 0)
+            .join('\n');
+
+          if (collapsed !== original) {
+            await editor.edit((builder) => {
+              builder.replace(fullRange, collapsed);
+            });
+            vscode.window.setStatusBarMessage('Collapsed blank lines to single breaks', 2000);
+          } else {
+            vscode.window.setStatusBarMessage('No blank lines to collapse', 2000);
+          }
+          break;
+        }
         case 'distinct': {
           const original = doc.getText();
           const lines = original.split(/\r?\n/);

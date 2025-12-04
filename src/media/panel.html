@@ -76,7 +76,7 @@
     <div class="section-buttons">
       <button id="trim">Trim</button>
       <button id="distinct">Distinct</button>
-      <button id="removeInlineSpaces">Remove Inline Spaces</button>
+      <button id="removeLineBreaks">Remove Line Breaks</button>
     </div>
   </details>
 
@@ -117,8 +117,8 @@
     document.getElementById('distinct').addEventListener('click', () => {
       vscode.postMessage({ command: 'distinct' });
     });
-    document.getElementById('removeInlineSpaces').addEventListener('click', () => {
-      vscode.postMessage({ command: 'removeInlineSpaces' });
+    document.getElementById('removeLineBreaks').addEventListener('click', () => {
+      vscode.postMessage({ command: 'removeLineBreaks' });
     });
     document.getElementById('lowercase').addEventListener('click', () => {
       vscode.postMessage({ command: 'lowercase' });
